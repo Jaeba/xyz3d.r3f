@@ -18,12 +18,18 @@ export class SceneManager
         this.populateSceneZones(scene);
         this.fixWaypoints();
         this.fixZones();
+
+        console.log(this.scene);
+        console.log(this.sceneZones);
+        console.log(this.waypoints);
     }
 
     // Populate scene zones and objects within zones
     populateSceneZones(scene)
     {
         const children = [ ...scene.children ];
+
+        let index = 0;
 
         // Traverse through each child node in the scene
         children.forEach((child) =>
@@ -34,7 +40,17 @@ export class SceneManager
                 // Extract animation data and update arrays
                 this.extractAnimationsFromUserData(node);
 
+                
                 const userDataCopy = Object.assign({}, node.userData);
+
+                // const nodeCopy = Object.assign({}, node);
+                // console.log('************** before *************');
+                // console.log(node);
+                // console.log(nodeCopy);
+                // console.log('************** after *************');
+                // nodeCopy.name = 'pizza';
+                // console.log(node);
+                // console.log(nodeCopy);
 
                 let sceneZone = null;
 
@@ -44,8 +60,35 @@ export class SceneManager
                     sceneZone = this.getOrCreateSceneZone(userDataCopy.zone);
                 }
 
-                // Add the object to the appropriate scene zone
-                this.addObject(sceneZone, node);
+                
+
+                if (node.userData.type == 'cameraAnchor') {
+                    console.log('********* node *********');
+                    console.log(node);
+                    
+                    node.userData.cameraAnchorIndex = index;
+                    index++;
+
+                    const nodette = Object.assign({}, node);
+                    console.log('********* nodette *********');
+                    console.log(nodette);
+                    nodette.userData.cameraAnchorIndex = index;
+                    index++;
+                    // nodette.id = node.id + 1000;
+                    nodette.name += '-b';
+                    nodette.uuid += '-b';
+                    nodette.geometry = Object.create(node.geometry);
+                    nodette.geometry.uuid += '-b';
+                    nodette.userData = Object.create(node.userData);
+                    nodette.userData.name += '-b';
+                    nodette.position = Object.create(node.position);
+                    nodette.position.x += 5;
+                    this.addObject(sceneZone, node);
+                    this.addCameraAnchor(sceneZone, nodette);
+                } else {
+                    // Add the object to the appropriate scene zone
+                    this.addObject(sceneZone, node);
+                }
             });
         });
 
@@ -245,7 +288,7 @@ export class SceneManager
     addCameraAnchor(sceneZone, anchorObject)
     {
         const cameraAnchorIndex = anchorObject.userData.cameraAnchorIndex;
-        anchorObject.visible = false;
+        anchorObject.visible = true;
 
         if (sceneZone)
         {
